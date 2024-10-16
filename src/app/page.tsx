@@ -58,7 +58,7 @@ export default function LandingPage() {
         );
     }
 
-    const filteredData = data?.filter((item: Post) => {
+    const filteredData = data?.filter((item) => {
         const price = Number(item.price);
         return price >= minPrice && price <= maxPrice;
     });
