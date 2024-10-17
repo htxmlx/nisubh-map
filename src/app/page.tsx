@@ -12,6 +12,7 @@ import { HiMiniUserCircle } from "react-icons/hi2";
 import { IoMdPhotos } from "react-icons/io";
 import { IoDownloadOutline } from "react-icons/io5";
 import { FaMapMarkedAlt } from "react-icons/fa";
+import Section from "@/components/ui/section";
 
 interface BeforeInstallPromptEvent extends Event {
     // Properties of the event
@@ -51,10 +52,10 @@ export default function LandingPage() {
 
     if (isPending) {
         return (
-            <section className="flex items-center justify-center flex-col">
+            <Section className="flex items-center justify-center flex-col">
                 <Loader2 className="size-10 animate-spin" />
                 Please wait...
-            </section>
+            </Section>
         );
     }
 

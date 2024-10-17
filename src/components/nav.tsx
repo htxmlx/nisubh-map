@@ -8,7 +8,7 @@ export default function Nav({ children }: PropsWithChildren) {
         { name: "Map", icon: Home, href: "/map" },
         { name: "Listing", icon: List, href: "/listing" },
         { name: "Create", icon: PlusCircle, href: "/create" },
-        { name: "Admin", icon: Settings, href: "/admin" },
+        // { name: "Admin", icon: Settings, href: "/admin" },
     ];
 
     return (
