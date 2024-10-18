@@ -4,7 +4,7 @@
     "short_name": "NISU BH",
     "theme_color": "#171717",
     "background_color": "#171717",
-    "display": "fullscreen",
+    "display": "minimal-ui",
     "orientation": "portrait",
     "scope": "/",
     "start_url": "/map",
