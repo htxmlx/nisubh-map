@@ -1,7 +1,7 @@
 "use client";
 
 import { MapboxMap } from "@/components/map";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { usePosts } from "@/features/posts/hooks/use-posts";
 import { Loader2 } from "lucide-react";
@@ -11,8 +11,11 @@ import { BsHouseFill } from "react-icons/bs";
 import { HiMiniUserCircle } from "react-icons/hi2";
 import { IoMdPhotos } from "react-icons/io";
 import { IoDownloadOutline } from "react-icons/io5";
-import { FaMapMarkedAlt } from "react-icons/fa";
+import { PiMapPinAreaBold } from "react-icons/pi";
 import Section from "@/components/ui/section";
+import { useAuth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface BeforeInstallPromptEvent extends Event {
     // Properties of the event
@@ -24,6 +27,7 @@ export default function LandingPage() {
     const [minPrice, setMinPrice] = useState<number>(0);
     const [maxPrice, setMaxPrice] = useState<number>(5000);
     const { data, isPending } = usePosts();
+    const { isSignedIn } = useAuth();
 
     const [supportsPWA, setSupportsPWA] = useState<boolean>(false);
     const [promptInstall, setPromptInstall] =
@@ -50,9 +54,13 @@ export default function LandingPage() {
         promptInstall.prompt();
     };
 
+    if (isSignedIn) {
+        redirect("/map");
+    }
+
     if (isPending) {
         return (
-            <Section className="flex items-center justify-center flex-col">
+            <Section className="flex items-center justify-center flex-col py-20">
                 <Loader2 className="size-10 animate-spin" />
                 Please wait...
             </Section>
@@ -69,16 +77,22 @@ export default function LandingPage() {
             <section className="space-y-10">
                 <nav className="flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2">
-                        <FaMapMarkedAlt className="fill-purple-500 size-10" />
+                        <PiMapPinAreaBold className="fill-purple-500 size-10" />
                         <p>
                             Nisu
                             <span className="font-bold">Map</span>
                         </p>
                     </Link>
 
-                    <Button className="bg-purple-500 text-purple-500-foreground shadow hover:bg-purple-500/90 text-white">
+                    <Link
+                        href="/sign-in"
+                        className={cn(
+                            buttonVariants(),
+                            "bg-purple-500 text-purple-500-foreground shadow hover:bg-purple-500/90 text-white"
+                        )}
+                    >
                         Sign In
-                    </Button>
+                    </Link>
                 </nav>
                 <h1 className="text-5xl font-semibold">
                     Find the Best Places To <br />
@@ -99,7 +113,14 @@ export default function LandingPage() {
                             <IoDownloadOutline className="size-5" /> Download
                             App
                         </Button>
-                        <Button variant="outline">See Platform</Button>
+                        <Link
+                            href="/map"
+                            className={cn(
+                                buttonVariants({ variant: "outline" })
+                            )}
+                        >
+                            See Platform
+                        </Link>
                     </div>
                 </div>
 

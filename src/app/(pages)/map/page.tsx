@@ -1,24 +1,15 @@
 "use client";
 
 import { MapboxMap } from "@/components/map";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { usePosts } from "@/features/posts/hooks/use-posts";
-import { Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { BsHouseFill } from "react-icons/bs";
-import { HiMiniUserCircle } from "react-icons/hi2";
-import { IoMdPhotos } from "react-icons/io";
-import { IoDownloadOutline } from "react-icons/io5";
-import { FaMapMarkedAlt } from "react-icons/fa";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Section from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CloseTo } from "@prisma/client";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { PostCard } from "@/features/posts/components/post-card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { usePosts } from "@/features/posts/hooks/use-posts";
+import { CloseTo } from "@prisma/client";
+import { useState } from "react";
 
 export default function LandingPage() {
     const [minPrice, setMinPrice] = useState(0);

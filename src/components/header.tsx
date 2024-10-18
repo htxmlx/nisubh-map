@@ -1,14 +1,16 @@
+"use client";
+
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { User2 } from "lucide-react";
 import Link from "next/link";
-import { FaMapMarkedAlt } from "react-icons/fa";
+import { PiMapPinAreaBold } from "react-icons/pi";
 import { buttonVariants } from "./ui/button";
 
 export default function Header() {
     return (
         <div className="py-3 px-2 z-50 bg-background rounded-xl flex justify-between items-center">
             <Link href="/" className="flex items-center gap-2">
-                <FaMapMarkedAlt className="fill-purple-500 size-10" />
+                <PiMapPinAreaBold className="fill-purple-500 size-10" />
                 <p>
                     Nisu
                     <span className="font-bold">Map</span>

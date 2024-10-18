@@ -1,40 +1,42 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher([]);
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "admin";
 
 export default clerkMiddleware((auth, request) => {
-    if (isProtectedRoute(request)) {
+    const isAdminRoute = createRouteMatcher("/admin")(request);
+
+    if (isAdminRoute) {
         const authHeader = request.headers.get("Authorization");
-
-        // Check if the Authorization header is present and valid
-        if (!authHeader || !authHeader.startsWith("Basic ")) {
-            // Respond with 401 Unauthorized and prompt for credentials
-            return new Response("Unauthorized", {
+        if (!authHeader) {
+            return new Response("Authentication required", {
                 status: 401,
                 headers: {
-                    "WWW-Authenticate": 'Basic realm="Secure Area"',
+                    "WWW-Authenticate": "Basic realm='Access to admin'",
                 },
             });
         }
 
-        // If basic auth is provided, decode it
-        const base64Credentials = authHeader.split(" ")[1];
-        const credentials = atob(base64Credentials).split(":");
-        const username = credentials[0];
-        const password = credentials[1];
-
-        // You can replace this with your own user validation logic
-        if (username !== "admin" || password !== "admin") {
-            return new Response("Unauthorized", {
+        const [type, credentials] = authHeader.split(" ");
+        if (type !== "Basic") {
+            return new Response("Invalid authentication method", {
                 status: 401,
-                headers: {
-                    "WWW-Authenticate": 'Basic realm="Secure Area"',
-                },
             });
         }
 
-        // Protect the route with Clerk
-        auth().protect();
+        const decodedCredentials = atob(credentials);
+        const [username, password] = decodedCredentials.split(":");
+
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            return; // User is authenticated, proceed to the admin route
+        }
+
+        return new Response("Invalid credentials", {
+            status: 401,
+            headers: {
+                "WWW-Authenticate": "Basic realm='Access to admin'",
+            },
+        });
     }
 });
 
