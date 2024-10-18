@@ -97,7 +97,7 @@ export default function LandingPage() {
                     </ul>
                 </ScrollArea>
             </section>
-            <section className="md:rounded-md overflow-hidden h-[85vh] md:h-[30rem]">
+            <section className="md:rounded-md overflow-hidden h-[84vh] md:h-[30rem]">
                 <MapboxMap data={filteredData!} />
             </section>
         </div>
