@@ -21,7 +21,6 @@ export default async function AdminDashboard(params: {
         <>
             <AdminData userCount={userCount} />
             <SearchUsers />
-
             <UserTable users={users} />
         </>
     );

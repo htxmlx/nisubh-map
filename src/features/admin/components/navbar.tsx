@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { PiMapPinAreaBold } from "react-icons/pi";
 
 const navItems = [
-    { name: "Go to App", href: "/map    " },
+    { name: "Home", href: "/admin" },
     { name: "Approved", href: "/admin/approved" },
     { name: "Unapproved", href: "/admin/unapproved" },
-    { name: "Find Users", href: "/admin/find-users" },
+    { name: "Go to App", href: "/map" },
 ];
 
 export default function AdminNav() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -24,8 +27,15 @@ export default function AdminNav() {
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
-                            <Link href="/" className="text-2xl font-bold">
-                                Logo
+                            <Link
+                                href="/map"
+                                className="flex items-center gap-2"
+                            >
+                                <PiMapPinAreaBold className="fill-purple-500 size-10" />
+                                <p>
+                                    Nisu
+                                    <span className="font-bold">Map</span>
+                                </p>
                             </Link>
                         </div>
                         <div className="hidden md:block">
@@ -34,7 +44,11 @@ export default function AdminNav() {
                                     <Link
                                         key={item.name}
                                         href={item.href}
-                                        className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary-foreground hover:text-primary"
+                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                            pathname === item.href
+                                                ? "bg-primary-foreground text-primary"
+                                                : "hover:bg-primary-foreground hover:text-primary"
+                                        }`}
                                     >
                                         {item.name}
                                     </Link>
@@ -49,9 +63,15 @@ export default function AdminNav() {
                         >
                             <span className="sr-only">Open main menu</span>
                             {isMenuOpen ? (
-                                <X className="block h-6 w-6" />
+                                <X
+                                    className="block h-6 w-6"
+                                    aria-hidden="true"
+                                />
                             ) : (
-                                <Menu className="block h-6 w-6" />
+                                <Menu
+                                    className="block h-6 w-6"
+                                    aria-hidden="true"
+                                />
                             )}
                         </button>
                     </div>
@@ -65,7 +85,11 @@ export default function AdminNav() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-primary-foreground hover:text-primary"
+                                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                                    pathname === item.href
+                                        ? "bg-primary-foreground text-primary"
+                                        : "hover:bg-primary-foreground hover:text-primary"
+                                }`}
                             >
                                 {item.name}
                             </Link>

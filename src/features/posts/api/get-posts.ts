@@ -14,6 +14,7 @@ export async function getPosts(
             take: limit,
             where: {
                 ...(closeTo && { close_to: closeTo }),
+                approved: approved,
             },
             include: {
                 ratings: true,

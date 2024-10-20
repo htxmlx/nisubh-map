@@ -11,7 +11,6 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
     return (
         <>
             <AdminNav />
-            <AdminData userCount={userCount} />
 
             {children}
         </>

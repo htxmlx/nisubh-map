@@ -1,12 +1,12 @@
-import { Home, List, PlusCircle, Settings } from "lucide-react";
+import { Layers, MapIcon, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import Header from "./header";
 
 export default function Nav({ children }: PropsWithChildren) {
     const menuItems = [
-        { name: "Map", icon: Home, href: "/map" },
-        { name: "Listing", icon: List, href: "/listing" },
+        { name: "Map", icon: MapIcon, href: "/map" },
+        { name: "Listing", icon: Layers, href: "/listing" },
         { name: "Create", icon: PlusCircle, href: "/create" },
         // { name: "Admin", icon: Settings, href: "/admin" },
     ];

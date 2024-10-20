@@ -16,7 +16,11 @@ export default function Home() {
         undefined
     );
     const [searchTerm, setSearchTerm] = useState("");
-    const { data, isPending, isFetching } = usePosts(postCount, closeToFilter);
+    const { data, isPending, isFetching } = usePosts(
+        postCount,
+        closeToFilter,
+        true
+    );
 
     if (isPending)
         return (
@@ -81,11 +85,15 @@ export default function Home() {
             />
 
             <ul className="space-y-2 w-full">
-                {filteredPosts?.slice(0, postCount).map((post) => (
-                    <li key={post.id}>
-                        <PostCard {...post} />
-                    </li>
-                ))}
+                {filteredPosts && filteredPosts.length > 0 ? (
+                    filteredPosts.slice(0, postCount).map((post) => (
+                        <li key={post.id}>
+                            <PostCard {...post} />
+                        </li>
+                    ))
+                ) : (
+                    <li>No posts available.</li>
+                )}
             </ul>
 
             {postCount < (filteredPosts?.length || 0) && (
