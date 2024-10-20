@@ -4,6 +4,7 @@ import "./globals.css";
 import RQProvider from "@/components/react-query-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { siteConfig } from "@/config/site";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -82,6 +83,7 @@ export default function RootLayout({
                         <main className="font-[family-name:var(--font-geist-sans)] container mx-auto min-h-screen">
                             {children}
                         </main>
+                        <Toaster />
                     </RQProvider>
                 </body>
             </html>

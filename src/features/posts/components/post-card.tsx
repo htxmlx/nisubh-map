@@ -1,5 +1,6 @@
-import { StarFilledIcon } from "@radix-ui/react-icons";
+"use client";
 
+import { StarFilledIcon } from "@radix-ui/react-icons";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
@@ -13,6 +14,7 @@ import { BathIcon, BedIcon, LocateIcon } from "lucide-react";
 import Link from "next/link";
 import { PostWithRating } from "../types";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function PostCard({
     id,
@@ -26,8 +28,16 @@ export function PostCard({
     bedroom_no,
     close_to,
 }: PostWithRating) {
+    const path = usePathname();
     return (
-        <Link href={`/details?id=${id}`} className="space-y-2">
+        <Link
+            href={
+                path.includes("admin")
+                    ? `/admin/details?id=${id}`
+                    : `/details?id=${id}`
+            }
+            className="space-y-2"
+        >
             <Card className="p-2">
                 <Carousel
                     opts={{

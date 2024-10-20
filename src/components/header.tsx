@@ -8,7 +8,7 @@ import { buttonVariants } from "./ui/button";
 
 export default function Header() {
     return (
-        <div className="py-3 px-2 z-50 bg-background rounded-xl flex justify-between items-center">
+        <div className="py-3 px-4 z-50 bg-background rounded-xl flex justify-between items-center">
             <Link href="/" className="flex items-center gap-2">
                 <PiMapPinAreaBold className="fill-purple-500 size-10" />
                 <p>

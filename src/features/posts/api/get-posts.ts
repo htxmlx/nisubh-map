@@ -6,16 +6,20 @@ import { PostWithRating } from "../types";
 
 export async function getPosts(
     limit = 10,
-    closeTo?: CloseTo
+    closeTo?: CloseTo,
+    approved?: boolean
 ): Promise<PostWithRating[]> {
     try {
         const posts = await prisma.post.findMany({
             take: limit,
             where: {
-                ...(closeTo && { close_to: closeTo }), // Filter by closeTo if provided
+                ...(closeTo && { close_to: closeTo }),
             },
             include: {
-                ratings: true, // Include ratings to calculate average
+                ratings: true,
+            },
+            orderBy: {
+                createdAt: "desc",
             },
         });
 

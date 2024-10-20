@@ -10,7 +10,7 @@ import { usePosts } from "@/features/posts/hooks/use-posts";
 import { CloseTo } from "@prisma/client";
 import { useState } from "react";
 
-export default function Home() {
+export default function UnapprovedPage() {
     const [postCount, setPostCount] = useState(10);
     const [closeToFilter, setCloseToFilter] = useState<CloseTo | undefined>(
         undefined

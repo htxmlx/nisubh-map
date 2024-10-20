@@ -30,8 +30,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { createPost } from "../api/create-posts";
 import Image from "next/image";
+import { redirect, useRouter } from "next/navigation";
 
 export default function CreatePostForm() {
+    const router = useRouter();
     const [uploadedImages, setUploadedImages] = useState<string[]>();
     const form = useForm<z.infer<typeof CreatePostSchema>>({
         resolver: zodResolver(CreatePostSchema),
@@ -50,9 +52,10 @@ export default function CreatePostForm() {
         try {
             await createPost(data);
             toast("Property Added Successfully");
+            router.replace("/map");
         } catch (error) {
             console.log(error);
-            toast.error("Uh oh! Something went wrong.");
+            toast.error(JSON.stringify(error));
         }
 
         form.reset();
@@ -80,7 +83,10 @@ export default function CreatePostForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5 mb-20"
+            >
                 <section className="space-y-5">
                     <h2 className="text-2xl font-bold">Property Details</h2>
                     <div className="grid grid-cols-2 gap-4">

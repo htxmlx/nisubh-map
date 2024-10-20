@@ -2,40 +2,41 @@
 
 import prisma from "@/lib/prisma";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import type { Post } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-export async function createPost(
-    formData: Omit<
-        Post,
-        "id" | "createdAt" | "updatedAt" | "userId" | "owner_image" | "approved"
-    >
+export async function createRating(
+    postId: string,
+    rating: number,
+    review: string
 ) {
     const { userId } = auth();
 
-    if (!userId) {
-        throw new Error("No userId");
-    }
+    if (!userId) return;
 
     const clerk = clerkClient();
 
-    const { imageUrl } = await clerk.users.getUser(userId);
+    const { imageUrl, fullName } = await clerk.users.getUser(userId);
+
     try {
-        await prisma.post.create({
+        await prisma.rating.create({
             data: {
-                ...formData,
                 userId,
-                owner_image: imageUrl,
-                approved: false,
+                postId,
+                value: rating,
+                review,
+                user_image: imageUrl,
+                user_name: fullName || "NA",
             },
         });
-        console.log("success");
+        revalidatePath("/profile");
+        redirect("/profile");
     } catch (error) {
         console.error("Error creating post:", error);
     }
 }
 
-export async function deletePost(postId: string) {
+export async function deleteRating(postId: string) {
     const { userId } = auth();
 
     if (!userId) {
@@ -43,8 +44,7 @@ export async function deletePost(postId: string) {
     }
 
     try {
-        // Find the post to ensure it exists and get its userId
-        const post = await prisma.post.findUnique({
+        const post = await prisma.rating.findUnique({
             where: { id: postId },
         });
 
@@ -52,17 +52,14 @@ export async function deletePost(postId: string) {
             throw new Error("Post not found");
         }
 
-        // Check if the authenticated user is the owner of the post
         if (post.userId !== userId) {
             throw new Error("User is not authorized to delete this post");
         }
 
-        // Proceed to delete the post
-        await prisma.post.delete({
+        await prisma.rating.delete({
             where: { id: postId },
         });
-        revalidatePath("/profile");
-        console.log("Post deleted successfully");
+        revalidatePath(`/details?id=${postId}`);
     } catch (error) {
         console.error("Error deleting post:", error);
         throw error;
