@@ -12,6 +12,7 @@ import {
 import Section from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApproved } from "@/features/admin/hooks/use-approved";
+import { useDelete } from "@/features/admin/hooks/use-delete";
 import { usePost } from "@/features/posts/hooks/use-post";
 import {
     BathIcon,
@@ -33,6 +34,7 @@ export default function AdminDetails({
 }) {
     const router = useRouter();
     const { mutate } = useApproved();
+    const { mutate: deletePost } = useDelete();
     const { data: listing, isPending } = usePost(searchParams?.id!);
 
     if (isPending) {
@@ -59,10 +61,20 @@ export default function AdminDetails({
     const handleApprove = () => {
         try {
             mutate(searchParams?.id!);
-            toast.success("Approve Success");
+            toast.success("Success");
             router.push("/admin");
         } catch (error) {
-            toast.error("Approve Success");
+            toast.error("Error");
+        }
+    };
+
+    const handleDelete = () => {
+        try {
+            deletePost(searchParams?.id!);
+            toast.success("Success");
+            router.push("/admin");
+        } catch (error) {
+            toast.error("Error");
         }
     };
     return (
@@ -167,9 +179,12 @@ export default function AdminDetails({
                     </div>
                 </div>
 
-                <div className="grid gap-4">
+                <div className="grid grid-cols-2 gap-4">
                     <Button onClick={handleApprove}>
                         {listing?.approved ? "Unapprove" : "Approve"}
+                    </Button>
+                    <Button variant="destructive" onClick={handleDelete}>
+                        Delete
                     </Button>
                 </div>
             </Section>

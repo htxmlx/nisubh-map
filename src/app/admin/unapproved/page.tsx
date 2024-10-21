@@ -8,7 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PostCard } from "@/features/posts/components/post-card";
 import { usePosts } from "@/features/posts/hooks/use-posts";
 import { CloseTo } from "@prisma/client";
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 export default function UnapprovedPage() {
     const [postCount, setPostCount] = useState(10);
@@ -19,8 +20,15 @@ export default function UnapprovedPage() {
     const { data, isPending, isFetching } = usePosts(
         postCount,
         closeToFilter,
-        true
+        false
     );
+
+    const queryClient = useQueryClient();
+    useEffect(() => {
+        return () => {
+            queryClient.clear();
+        };
+    }, [queryClient]);
 
     if (isPending)
         return (
