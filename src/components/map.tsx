@@ -144,8 +144,11 @@ export const MapboxMap = ({ data }: MapProps) => {
                             </Button>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                            {selected?.images.map((data) => (
-                                <div className="relative aspect-square rounded-xl overflow-hidden">
+                            {selected?.images.map((data, idx) => (
+                                <div
+                                    key={idx}
+                                    className="relative aspect-square rounded-xl overflow-hidden"
+                                >
                                     <Image
                                         src={data}
                                         alt="Property Image"

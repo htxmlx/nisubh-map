@@ -1,9 +1,9 @@
 "use client";
 
+import { UploadButton } from "@/lib/uploadthing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { UploadButton } from "@/lib/uploadthing";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/form";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
-import { CreatePostSchema } from "../types";
-import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
     Select,
@@ -27,14 +26,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { createPost } from "../api/create-posts";
 import Image from "next/image";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createPost } from "../api/create-posts";
+import { CreatePostSchema } from "../types";
 
 export default function CreatePostForm() {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
     const [uploadedImages, setUploadedImages] = useState<string[]>();
+    const [lat, setLat] = useState<number>(0);
+    const [long, setLong] = useState<number>(0);
     const form = useForm<z.infer<typeof CreatePostSchema>>({
         resolver: zodResolver(CreatePostSchema),
         defaultValues: {
@@ -53,6 +56,7 @@ export default function CreatePostForm() {
             await createPost(data);
             toast("Property Added Successfully");
             router.replace("/map");
+            console.log(data);
         } catch (error) {
             console.log(error);
             toast.error(JSON.stringify(error));
@@ -70,6 +74,8 @@ export default function CreatePostForm() {
                     const { latitude, longitude } = position.coords;
                     form.setValue("latitude", latitude);
                     form.setValue("longitude", longitude);
+                    setLong(longitude);
+                    setLat(latitude);
                     console.log(position.coords);
                 },
                 (error) => {
@@ -254,59 +260,40 @@ export default function CreatePostForm() {
                             Please provide your precise property location.
                         </FormDescription>
 
-                        <FormField
-                            control={form.control}
-                            name="latitude"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Latitude</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            type="number"
-                                            id="latitude"
-                                            onChange={(
-                                                event: ChangeEvent<HTMLInputElement>
-                                            ) =>
-                                                field.onChange(
-                                                    parseFloat(
-                                                        event.target.value
-                                                    )
-                                                )
-                                            }
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                        <FormItem>
+                            <FormLabel>Latitude</FormLabel>
+                            <Input
+                                type="number"
+                                id="latitude"
+                                value={lat}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                    setLat(parseFloat(e.target.value))
+                                }
+                            />
+                            {form.formState.errors.latitude?.message && (
+                                <p className="text-red-500">
+                                    {form.formState.errors.latitude?.message}
+                                </p>
                             )}
-                        />
+                        </FormItem>
 
-                        <FormField
-                            control={form.control}
-                            name="longitude"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Longitude</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            type="number"
-                                            id="longitude"
-                                            onChange={(
-                                                event: ChangeEvent<HTMLInputElement>
-                                            ) =>
-                                                field.onChange(
-                                                    parseFloat(
-                                                        event.target.value
-                                                    )
-                                                )
-                                            }
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                        <FormItem>
+                            <FormLabel>Longitude</FormLabel>
+                            <Input
+                                type="number"
+                                id="longitude"
+                                value={long}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                    setLong(parseFloat(e.target.value))
+                                }
+                            />
+                            {form.formState.errors.longitude?.message && (
+                                <p className="text-red-500">
+                                    {form.formState.errors.longitude?.message}
+                                </p>
                             )}
-                        />
+                            <FormMessage />
+                        </FormItem>
                     </div>
 
                     <FormDescription className="text-center">
@@ -411,55 +398,54 @@ export default function CreatePostForm() {
 
                 <section className="space-y-5">
                     <h2 className="text-2xl font-bold">Upload Images</h2>
-                    <FormField
-                        control={form.control}
-                        name="images"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    Upload up to 4 images and minimum of 8 mb
-                                </FormLabel>
-                                <FormControl>
-                                    <UploadButton
-                                        appearance={{
-                                            button: {
-                                                width: "100%",
-                                                color: "white",
-                                                backgroundColor: "hsl(0 0% 9%)",
-                                            },
-                                        }}
-                                        endpoint="imageUploader"
-                                        onClientUploadComplete={(res) => {
-                                            const images = res.map(
-                                                (item) => item?.url
-                                            );
-                                            setUploadedImages(images);
-                                            form.setValue("images", images);
-                                        }}
-                                        onUploadError={(error: Error) => {
-                                            alert(`ERROR! ${error.message}`);
-                                        }}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                <div className="grid grid-cols-4 gap-2">
-                                    {uploadedImages &&
-                                        uploadedImages.map((img) => (
-                                            <Image
-                                                src={img}
-                                                alt="uploaded image"
-                                                width={100}
-                                                height={100}
-                                                quality={50}
-                                            />
-                                        ))}
-                                </div>
-                            </FormItem>
+                    <FormItem>
+                        <FormLabel>
+                            Upload up to 4 images and minimum of 8 mb
+                        </FormLabel>
+                        <FormControl>
+                            <UploadButton
+                                appearance={{
+                                    button: {
+                                        width: "100%",
+                                        color: "white",
+                                        backgroundColor: "hsl(0 0% 9%)",
+                                    },
+                                }}
+                                endpoint="imageUploader"
+                                onClientUploadComplete={(res) => {
+                                    const images = res.map((item) => item?.url);
+                                    setUploadedImages(images);
+                                    form.setValue("images", images);
+                                    setLoading(false);
+                                }}
+                                onUploadError={(error: Error) => {
+                                    alert(`ERROR! ${error.message}`);
+                                }}
+                                onUploadBegin={() => setLoading(true)}
+                            />
+                        </FormControl>
+                        {form.formState.errors.images?.message && (
+                            <p className="text-red-500">
+                                {form.formState.errors.images?.message}
+                            </p>
                         )}
-                    />
+                        <div className="grid grid-cols-4 gap-2">
+                            {uploadedImages &&
+                                uploadedImages.map((img, idx) => (
+                                    <Image
+                                        key={idx}
+                                        src={img}
+                                        alt="uploaded image"
+                                        width={100}
+                                        height={100}
+                                        quality={50}
+                                    />
+                                ))}
+                        </div>
+                    </FormItem>
                 </section>
 
-                <Button className="w-full" type="submit">
+                <Button disabled={loading} className="w-full" type="submit">
                     Submit
                 </Button>
             </form>

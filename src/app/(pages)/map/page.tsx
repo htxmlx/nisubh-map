@@ -1,105 +1,84 @@
 "use client";
 
 import { MapboxMap } from "@/components/map";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer";
 import Section from "@/components/ui/section";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PostCard } from "@/features/posts/components/post-card";
+import { Slider } from "@/components/ui/slider";
 import { usePosts } from "@/features/posts/hooks/use-posts";
-import { CloseTo } from "@prisma/client";
+import { Loader2, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 
-export default function LandingPage() {
+export default function Home() {
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(5000);
-    const [closeToFilter, setCloseToFilter] = useState<CloseTo | undefined>(
-        undefined
-    );
-    const [searchTerm, setSearchTerm] = useState("");
 
-    const { data, isPending, isFetching } = usePosts(50, closeToFilter);
+    const { data, isPending } = usePosts();
+
+    if (isPending) {
+        return (
+            <Section className="flex items-center justify-center flex-col">
+                <Loader2 className="size-10 animate-spin" />
+                Please wait...
+            </Section>
+        );
+    }
 
     const filteredData = data?.filter((item) => {
         const price = Number(item.price);
         return price >= minPrice && price <= maxPrice;
     });
 
-    const filterOptions = [
-        { label: "All", value: undefined },
-        { label: "Main", value: CloseTo.main },
-        { label: "West", value: CloseTo.west },
-        { label: "Both Campus", value: CloseTo.both },
-    ];
-
-    function handleFilterClick(value: CloseTo | undefined) {
-        setCloseToFilter(value);
-    }
-
-    // Filter the data based on the search term
-    const filteredPosts = data?.filter(
-        (post) =>
-            post.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (closeToFilter === undefined || post.close_to === closeToFilter)
-    );
-
-    if (isPending)
-        return (
-            <Section>
-                <div className="flex gap-2">
-                    <Skeleton className="h-4 w-10" />
-                    <Skeleton className="h-4 w-12" />
-                    <Skeleton className="h-4 w-16" />
-                </div>
-                {Array.from({ length: 10 }).map((_, index) => (
-                    <div key={index} className="flex flex-col space-y-3">
-                        <Skeleton className="h-[125px] w-full max-w-sm rounded-xl" />
-                    </div>
-                ))}
-            </Section>
-        );
-
     return (
-        <div className="grid md:grid-cols-2 w-full gap-10 md:p-5">
-            <section className="space-y-10 hidden md:block">
-                <div className="flex gap-2 mb-5">
-                    {filterOptions.map((option) => (
-                        <Badge
-                            key={option.label}
-                            onClick={() => handleFilterClick(option.value)}
-                            className="cursor-pointer px-4 py-2"
-                            variant={
-                                closeToFilter === option.value
-                                    ? "default"
-                                    : "secondary"
-                            }
-                        >
-                            {option.label}
-                        </Badge>
-                    ))}
-                </div>
-
-                <Input
-                    type="text"
-                    placeholder="Search posts..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-
-                <ScrollArea className="h-full md:h-80 w-full">
-                    <ul className="space-y-2 w-full">
-                        {filteredPosts!.map((post) => (
-                            <li key={post.id}>
-                                <PostCard {...post} />
-                            </li>
-                        ))}
-                    </ul>
-                </ScrollArea>
-            </section>
-            <section className="md:rounded-md overflow-hidden h-[84vh] md:h-[30rem]">
-                <MapboxMap data={filteredData!} />
-            </section>
+        <div className="relative h-[84vh] md:h-[60vh] w-full overflow-y-hidden">
+            <div className="absolute inset-x-2 top-2 z-50 flex gap-2 justify-end">
+                <Drawer>
+                    <DrawerTrigger asChild>
+                        <Button className="gap-2" variant="secondary">
+                            Filter Price{" "}
+                            <SlidersHorizontal className="size-4" />
+                        </Button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                        <DrawerHeader>
+                            <DrawerTitle>Price Filter</DrawerTitle>
+                            <div className="relative flex-1">
+                                <div className="price-filter p-4 shadow-md rounded">
+                                    <Slider
+                                        min={0}
+                                        max={5000}
+                                        step={1000}
+                                        value={[minPrice, maxPrice]}
+                                        onValueChange={(value) => {
+                                            setMinPrice(value[0]);
+                                            setMaxPrice(value[1]);
+                                        }}
+                                        className="w-full min-w-[250px] mt-2"
+                                    />
+                                    <div className="flex justify-between mt-2 text-sm">
+                                        <span>{`$${minPrice}`}</span>
+                                        <span>{`$${maxPrice}`}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </DrawerHeader>
+                        <DrawerFooter>
+                            <DrawerClose>
+                                <Button variant="outline">Cancel</Button>
+                            </DrawerClose>
+                        </DrawerFooter>
+                    </DrawerContent>
+                </Drawer>
+            </div>
+            <MapboxMap data={filteredData!} />
         </div>
     );
 }
