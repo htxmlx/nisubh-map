@@ -35,8 +35,11 @@ export default function Nav({ children }: PropsWithChildren) {
                 {children}
 
                 {/* Bottom navbar for smaller screens */}
-                <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-100 p-2">
-                    <ul className="flex justify-around z-50">
+                <nav
+                    style={{ zIndex: 99999 }}
+                    className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-100 p-2"
+                >
+                    <ul className="flex justify-around">
                         {menuItems.map((item) => (
                             <li key={item.name}>
                                 <Link

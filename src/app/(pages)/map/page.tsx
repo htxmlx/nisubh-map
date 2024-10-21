@@ -21,7 +21,7 @@ export default function Home() {
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(5000);
 
-    const { data, isPending } = usePosts();
+    const { data, isPending } = usePosts(undefined, undefined, true);
 
     if (isPending) {
         return (
@@ -38,8 +38,8 @@ export default function Home() {
     });
 
     return (
-        <div className="relative h-[84vh] md:h-[60vh] w-full overflow-y-hidden">
-            <div className="absolute inset-x-2 top-2 z-50 flex gap-2 justify-end">
+        <div className="relative h-[84vh] md:h-[60vh] w-full overflow-hidden">
+            <div className="absolute inset-x-2 top-4 z-50 flex gap-2 justify-end">
                 <Drawer>
                     <DrawerTrigger asChild>
                         <Button className="gap-2" variant="secondary">
