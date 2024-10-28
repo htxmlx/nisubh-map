@@ -18,7 +18,7 @@ import { Loader2, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 
 export default function Home() {
-    const [minPrice, setMinPrice] = useState(0);
+    const [minPrice, setMinPrice] = useState(500);
     const [maxPrice, setMaxPrice] = useState(5000);
 
     const { data, isPending } = usePosts(undefined, undefined, true);
@@ -38,7 +38,7 @@ export default function Home() {
     });
 
     return (
-        <div className="relative h-[84vh] md:h-[60vh] w-full overflow-hidden">
+        <div className="relative h-[82vh] md:h-[60vh] w-full overflow-hidden">
             <div className="absolute inset-x-2 top-4 z-50 flex gap-2 justify-end">
                 <Drawer>
                     <DrawerTrigger asChild>
@@ -52,10 +52,13 @@ export default function Home() {
                             <DrawerTitle>Price Filter</DrawerTitle>
                             <div className="relative flex-1">
                                 <div className="price-filter p-4 shadow-md rounded">
+                                    <h3 className="text-lg font-medium mb-4">
+                                        What's your budget?
+                                    </h3>
                                     <Slider
-                                        min={0}
+                                        min={500}
                                         max={5000}
-                                        step={1000}
+                                        step={500}
                                         value={[minPrice, maxPrice]}
                                         onValueChange={(value) => {
                                             setMinPrice(value[0]);
@@ -64,8 +67,8 @@ export default function Home() {
                                         className="w-full min-w-[250px] mt-2"
                                     />
                                     <div className="flex justify-between mt-2 text-sm">
-                                        <span>{`$${minPrice}`}</span>
-                                        <span>{`$${maxPrice}`}</span>
+                                        <span>{`₱${minPrice}`}</span>
+                                        <span>{`₱${maxPrice}`}</span>
                                     </div>
                                 </div>
                             </div>

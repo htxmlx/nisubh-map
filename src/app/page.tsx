@@ -18,7 +18,6 @@ import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface BeforeInstallPromptEvent extends Event {
-    // Properties of the event
     prompt: () => Promise<void>;
     userChoice: Promise<{ outcome: string; platform: string }>;
 }
@@ -34,16 +33,21 @@ export default function LandingPage() {
         useState<BeforeInstallPromptEvent | null>(null);
 
     useEffect(() => {
-        const handler = (e: BeforeInstallPromptEvent) => {
-            e.preventDefault();
-            console.log("we are being triggered :D");
-            setSupportsPWA(true);
-            setPromptInstall(e);
-        };
-        window.addEventListener("beforeinstallprompt", handler as any); // Cast to any if TypeScript complains
+        if (typeof window !== "undefined") {
+            const handler = (e: BeforeInstallPromptEvent) => {
+                e.preventDefault();
+                console.log("we are being triggered :D");
+                setSupportsPWA(true);
+                setPromptInstall(e);
+            };
+            window.addEventListener("beforeinstallprompt", handler as any);
 
-        return () =>
-            window.removeEventListener("beforeinstallprompt", handler as any);
+            return () =>
+                window.removeEventListener(
+                    "beforeinstallprompt",
+                    handler as any
+                );
+        }
     }, []);
 
     const onClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
@@ -54,13 +58,15 @@ export default function LandingPage() {
         promptInstall.prompt();
     };
 
-    if (isSignedIn) {
-        redirect("/map");
-    }
+    useEffect(() => {
+        if (isSignedIn) {
+            window.location.href = "/map";
+        }
+    }, [isSignedIn]);
 
     if (isPending) {
         return (
-            <Section className="flex items-center justify-center flex-col py-20">
+            <Section className="flex items-center justify-center flex-col">
                 <Loader2 className="size-10 animate-spin" />
                 Please wait...
             </Section>
@@ -151,7 +157,9 @@ export default function LandingPage() {
                 </div>
             </section>
             <section className="rounded-md overflow-hidden h-96 md:h-auto">
-                <MapboxMap data={filteredData ?? []} />
+                {typeof window !== "undefined" && (
+                    <MapboxMap data={filteredData ?? []} />
+                )}
             </section>
         </div>
     );

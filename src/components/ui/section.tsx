@@ -23,7 +23,7 @@ export default function Section({ children, className }: SectionProps) {
             transition={{ duration: 0.5 }}
             className={cn(
                 className,
-                "min-h-screenp p-2 space-y-5 w-full mx-auto"
+                "min-h-screen p-2 space-y-5 w-full mx-auto"
             )}
         >
             {children}
