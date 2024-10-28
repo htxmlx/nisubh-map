@@ -34,6 +34,12 @@ export default function LandingPage() {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
+            // Check if app is installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                window.location.href = "/map";
+                return;
+            }
+
             const handler = (e: BeforeInstallPromptEvent) => {
                 e.preventDefault();
                 console.log("we are being triggered :D");
