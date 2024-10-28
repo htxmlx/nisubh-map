@@ -7,6 +7,7 @@ export type PostWithRating = Post & {
 };
 
 export const CreatePostSchema = z.object({
+    userId: z.string(),
     title: z.string().min(1, "Title is required"),
     price: z.number().min(0, "Price must be a positive number"),
     address: z.string().min(1, "Address is required"),

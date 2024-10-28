@@ -8,20 +8,18 @@ import { revalidatePath } from "next/cache";
 export async function createPost(
     formData: Omit<
         Post,
-        "id" | "createdAt" | "updatedAt" | "userId" | "owner_image" | "approved"
+        "id" | "createdAt" | "updatedAt" | "owner_image" | "approved"
     >
 ) {
-    const { userId } = auth();
+    const { id: userId } = await clerkClient.users.getUser(formData.userId);
 
     if (!userId) {
-        throw new Error("User is not authenticated");
+        throw new Error("No userId");
     }
 
     const clerk = clerkClient();
 
-    const user = await clerk.users.getUser(userId);
-    const imageUrl = user.imageUrl ?? "";
-
+    const { imageUrl } = await clerk.users.getUser(userId);
     try {
         await prisma.post.create({
             data: {
@@ -32,10 +30,8 @@ export async function createPost(
             },
         });
         console.log("success");
-        revalidatePath("/profile");
     } catch (error) {
         console.error("Error creating post:", error);
-        throw error;
     }
 }
 

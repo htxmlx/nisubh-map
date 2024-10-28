@@ -27,12 +27,19 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createPost } from "../api/create-posts";
 import { CreatePostSchema } from "../types";
+import { useAuth } from "@clerk/nextjs";
 
 export default function CreatePostForm() {
+    const { userId } = useAuth();
+
+    if (!userId) {
+        redirect("/sign-in");
+    }
+
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [uploadedImages, setUploadedImages] = useState<string[]>();
@@ -44,6 +51,7 @@ export default function CreatePostForm() {
             close_to: "main",
             watersupply_available: false,
             wifi_available: false,
+            userId: userId!,
         },
     });
 
