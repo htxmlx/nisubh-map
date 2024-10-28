@@ -1,117 +1,137 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { StarFilledIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
+import { useAuth } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import type { Rating } from "@prisma/client";
-import { updateRating } from "../api/update-rating";
+import { StarFilledIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { createRating } from "../api/create-rating";
-import { SubmitHandler, useForm } from "react-hook-form";
 
-const ratingSchema = z.object({
-    rating: z.number().min(1).max(5),
-    review: z.string().min(5),
+const formSchema = z.object({
+    value: z.number().min(1).max(5),
+    review: z.string().min(10, "Review must be at least 10 characters"),
 });
 
-type RatingFormValues = z.infer<typeof ratingSchema>;
+interface RatingFormProps {
+    postId: string;
+    existingReview?: {
+        value: number;
+        review: string;
+    } | null;
+}
 
 export default function RatingForm({
     postId,
     existingReview,
-}: {
-    postId: string;
-    existingReview?: Rating;
-}) {
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors, isSubmitting },
-        watch,
-    } = useForm<RatingFormValues>({
-        resolver: zodResolver(ratingSchema),
+}: RatingFormProps) {
+    const router = useRouter();
+    const { userId } = useAuth();
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
-            rating: existingReview ? existingReview.value : 0,
-            review: existingReview ? existingReview.review : "",
+            value: existingReview?.value || 0,
+            review: existingReview?.review || "",
         },
     });
 
-    const router = useRouter();
-
-    const onSubmit: SubmitHandler<RatingFormValues> = async ({
-        rating,
-        review,
-    }) => {
+    const [hoveredRating, setHoveredRating] = React.useState(0);
+    const [selectedRating, setSelectedRating] = React.useState(
+        existingReview?.value || 0
+    );
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            if (existingReview) {
-                // Update the existing review
-                await updateRating(postId, rating, review);
-            } else {
-                // Create a new review
-                await createRating(postId, rating, review);
+            if (!userId) {
+                throw new Error("User must be logged in to create a rating");
             }
+            await createRating(postId, selectedRating, values.review, userId);
+
             router.push(`/details?id=${postId}`);
         } catch (error) {
-            console.error("An unexpected error occurred:", error);
+            console.error("Error submitting rating:", error);
         }
-    };
-
-    function InputFieldError({ text = "" }: { text?: string }) {
-        return <p className="text-red-500">{text}</p>;
     }
 
-    // Handle star click
-    const handleStarClick = (value: number) => {
-        setValue("rating", value);
-    };
-
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-            <div>
-                <Label htmlFor="rating">Rating</Label>
-                <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <StarFilledIcon
-                            key={star}
-                            className={`w-8 h-8 cursor-pointer ${
-                                watch("rating") >= star
-                                    ? "text-yellow-500 fill-yellow-500"
-                                    : "text-gray-300"
-                            }`}
-                            onClick={() => handleStarClick(star)}
-                        />
-                    ))}
-                </div>
-                {errors.rating && (
-                    <InputFieldError text={errors.rating.message} />
-                )}
-            </div>
-
-            <div>
-                <Label htmlFor="review">Review</Label>
-                <Textarea
-                    id="review"
-                    {...register("review")}
-                    placeholder="Write your review here"
-                    rows={4}
-                    className="p-2 border rounded"
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8 px-4"
+            >
+                <FormField
+                    control={form.control}
+                    name="value"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4, 5].map((rating) => (
+                                        <Button
+                                            key={rating}
+                                            type="button"
+                                            variant="ghost"
+                                            className="p-0 h-auto"
+                                            onMouseEnter={() =>
+                                                setHoveredRating(rating)
+                                            }
+                                            onMouseLeave={() =>
+                                                setHoveredRating(0)
+                                            }
+                                            onClick={() => {
+                                                setSelectedRating(rating);
+                                                field.onChange(rating);
+                                            }}
+                                        >
+                                            <StarFilledIcon
+                                                className={`h-8 w-8 ${
+                                                    rating <=
+                                                    (hoveredRating ||
+                                                        selectedRating)
+                                                        ? "text-yellow-400"
+                                                        : "text-gray-300"
+                                                }`}
+                                            />
+                                        </Button>
+                                    ))}
+                                </div>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
-                {errors.review && (
-                    <InputFieldError text={errors.review.message} />
-                )}
-            </div>
 
-            <Button className="mt-auto" type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                    ? "Submitting..."
-                    : existingReview
-                    ? "Update Rating"
-                    : "Submit Rating"}
-            </Button>
-        </form>
+                <FormField
+                    control={form.control}
+                    name="review"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Textarea
+                                    placeholder="Write your review here..."
+                                    className="resize-none"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <Button type="submit">
+                    {existingReview ? "Update Review" : "Submit Review"}
+                </Button>
+            </form>
+        </Form>
     );
 }

@@ -1,37 +1,43 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { buttonVariants } from "./ui/button";
-import { Post } from "@prisma/client";
-import { useUserRating } from "@/features/ratings/hooks/use-user-rating";
+import { Button } from "@/components/ui/button";
+import { StarFilledIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
 
 interface UserReviewButtonProps {
-    listing: Post;
+    postId: string;
+    userId?: string;
+    hasReviewed?: boolean;
 }
 
-export default function UserReviewButton({ listing }: UserReviewButtonProps) {
-    const { data: userReview, isPending, error } = useUserRating(listing?.id!);
+export default function UserReviewButton({
+    postId,
+    userId,
+    hasReviewed = false,
+}: UserReviewButtonProps) {
+    const router = useRouter();
+
+    const handleClick = () => {
+        if (!userId) {
+            router.push("/sign-in");
+            return;
+        }
+
+        if (hasReviewed) {
+            router.push(`/review?id=${postId}&action=delete&userId=${userId}`);
+        } else {
+            router.push(`/review?id=${postId}&userId=${userId}`);
+        }
+    };
 
     return (
-        <div>
-            {userReview ? (
-                <div className="flex gap-4">
-                    <Link
-                        className={cn(buttonVariants(), "w-full")}
-                        href={`/review?id=${listing.id}&action=edit`}
-                    >
-                        Edit My Review
-                    </Link>
-                </div>
-            ) : (
-                <Link
-                    className={cn(buttonVariants(), "w-full")}
-                    href={`/review?id=${listing.id}`}
-                >
-                    Add a Review
-                </Link>
-            )}
-        </div>
+        <Button
+            onClick={handleClick}
+            variant={hasReviewed ? "destructive" : "default"}
+            className="gap-2"  
+        >
+            <StarFilledIcon className="size-4" />
+            {hasReviewed ? "Delete Review" : "Write a Review"}
+        </Button>
     );
 }

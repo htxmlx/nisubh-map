@@ -99,7 +99,7 @@ export default function CreatePostForm() {
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-5 mb-20"
+                className="space-y-5 pb-20"
             >
                 <section className="space-y-5">
                     <h2 className="text-2xl font-bold">Property Details</h2>

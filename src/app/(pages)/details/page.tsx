@@ -21,12 +21,14 @@ import {
     WifiIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Page({
     searchParams,
 }: {
     searchParams?: { id: string };
 }) {
+    const { userId } = useAuth();
     const { data: listing, isPending, error } = usePost(searchParams?.id!);
 
     if (isPending) {
@@ -147,7 +149,7 @@ export default function Page({
                 </div>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid gap-4 pb-20 mb-20">
                 <h2 className="text-2xl font-bold">Reviews</h2>
                 <div className="grid gap-6">
                     {listing.ratings.length > 0 ? (
@@ -197,8 +199,15 @@ export default function Page({
                         <p>No reviews yet.</p>
                     )}
                 </div>
-
-                <UserReviewButton listing={listing} />
+                <UserReviewButton
+                    hasReviewed={
+                        !!listing.ratings.find(
+                            (rating) => rating.userId === userId
+                        )
+                    }
+                    userId={userId!}
+                    postId={listing.id}
+                />
             </div>
         </Section>
     );

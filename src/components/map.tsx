@@ -88,7 +88,7 @@ export const MapboxMap = ({ data }: MapProps) => {
         <>
             <div id="map" style={{ height: "100%" }} />
             <Drawer open={!!selected} onOpenChange={() => setSelected(null)}>
-                <DrawerContent>
+                <DrawerContent className="pb-20">
                     <DrawerHeader className="space-y-2">
                         <DrawerTitle>{selected?.title}</DrawerTitle>
                         <DrawerDescription className="text-green-500 ">
