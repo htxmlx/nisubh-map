@@ -14,12 +14,14 @@ export async function createPost(
     const { userId } = auth();
 
     if (!userId) {
-        throw new Error("No userId");
+        throw new Error("User is not authenticated");
     }
 
     const clerk = clerkClient();
 
-    const { imageUrl } = await clerk.users.getUser(userId);
+    const user = await clerk.users.getUser(userId);
+    const imageUrl = user.imageUrl ?? "";
+
     try {
         await prisma.post.create({
             data: {
@@ -30,8 +32,10 @@ export async function createPost(
             },
         });
         console.log("success");
+        revalidatePath("/profile");
     } catch (error) {
         console.error("Error creating post:", error);
+        throw error;
     }
 }
 
